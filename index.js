@@ -1,10 +1,12 @@
 const player = document.getElementById("player");
+const divParent = document.getElementById("parent");
+let gridBtns = [];
 let actualPlayer = 1;
 let circles = 0;
 let crosses = 0;
 
-const divParent = document.getElementById("parent");
-
+let circleLine = [{}];
+let crossLine = [{}];
 let table = [
     ['f', 'f', 'f'],
     ['f', 'f', 'f'],
@@ -16,25 +18,27 @@ const repeatButton = () => {
     for (let i = 0; i <= 2; i++) {
         for (let j = 0; j <= 2; j++) {
             let btn = document.createElement("button");
-            btn.addEventListener("click", () => onClick(btn));
+            gridBtns.push(btn);
+            btn.addEventListener("click", onClickEvent);
+            btn.classList.add('gridBtn');
             btn.col = j;
             btn.row = i;
             divParent.appendChild(btn);
         }
     }
 }
-const onClick = (btn) => {
+const onClickEvent = (e) => {
     playerSwap();
-    draw(btn);
+    draw(e);
 }
 const playerSwap = () => {
-    player.innerHTML = `Turn of: Player ${actualPlayer}`;
     actualPlayer = actualPlayer == 1 ? 2 : 1;
+    player.innerHTML = `Turn of: Player ${actualPlayer}`;
 }
-const draw = (btn) => {
+const draw = (e) => {
     const div = document.createElement("div");
-    const col = btn.col;
-    const row = btn.row;
+    const col = e.target.col;
+    const row = e.target.row;
     switch (actualPlayer) {
         case 1:
             div.classList.add('circle'); //add css style
@@ -45,7 +49,7 @@ const draw = (btn) => {
             table[row][col] = 'x';
             break;
     }
-    divParent.replaceChild(div, btn);
+    divParent.replaceChild(div, e.target);
     checkInLine();
 }
 
@@ -66,11 +70,11 @@ const checkInLine = () => {
     }
 
     for (let i = 2; i >= 0; i--) { // diagonal 1
-        if (checkGrid(i,Math.abs(i-2))) return;
+        if (checkGrid(i, Math.abs(i - 2))) return;
     }
     crosses = circles = 0;
     for (let i = 0; i <= 2; i++) { //diagonal 2
-        if (checkGrid(i,i)) return;
+        if (checkGrid(i, i)) return;
     }
 
 }
@@ -79,17 +83,35 @@ const checkGrid = (i = 0, j = 0) => {
     switch (table[i][j]) {
         case 'o':
             circles++;
+            circleLine.push({ i, j });
             break;
         case 'x':
             crosses++;
+            crossLine.push({ i, j });
             break;
     }
-
     if (circles == 3 || crosses == 3) {
         player.innerHTML = `Player ${actualPlayer} WINS!!!`;
+        player.classList.add('win');
+        desireButtons();
+        animateInLine(circles == 3);
         return true;
     }
+    crossLine = [];
+    circleLine = [];
     return false;
+}
+const animateInLine = (circleLine = false) => {
+    if (circleLine) {
+        
+    }
+}
+const desireButtons = () => {
+    gridBtns.forEach(btn=>{
+        btn.classList.remove('gridBtn');
+        btn.classList.add('btnWin');
+        btn.removeEventListener('click',onClickEvent );
+    });
 }
 repeatButton();
 playerSwap();
