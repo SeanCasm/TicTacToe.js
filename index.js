@@ -1,12 +1,15 @@
 const player = document.getElementById("player");
 const divParent = document.getElementById("parent");
+const content = document.getElementById("content");
+
 let gridBtns = [];
 let actualPlayer = 1;
 let circles = 0;
-let crosses = 0;
+let squares = 0;
+let gameEnds=false;
 
 let circleLine = [{}];
-let crossLine = [{}];
+let squareLine = [{}];
 let table = [
     ['f', 'f', 'f'],
     ['f', 'f', 'f'],
@@ -28,10 +31,13 @@ const repeatButton = () => {
     }
 }
 const onClickEvent = (e) => {
-    playerSwap();
     draw(e);
+    playerSwap();
 }
 const playerSwap = () => {
+    
+    if(gameEnds) return;
+
     actualPlayer = actualPlayer == 1 ? 2 : 1;
     player.innerHTML = `Turn of: Player ${actualPlayer}`;
 }
@@ -45,7 +51,7 @@ const draw = (e) => {
             table[row][col] = 'o';
             break;
         case 2:
-            div.classList.add('cross'); //add css style
+            div.classList.add('square'); //add css style
             table[row][col] = 'x';
             break;
     }
@@ -54,25 +60,25 @@ const draw = (e) => {
 }
 
 const checkInLine = () => {
-    crosses = circles = 0;
+    squares = circles = 0;
     for (let i = 0; i <= 2; i++) {//horizontal
         for (let j = 0; j <= 2; j++) {
             if (checkGrid(i, j)) return;
         }
-        crosses = circles = 0;
+        squares = circles = 0;
     }
 
     for (let j = 0; j <= 2; j++) { //vertical
         for (let i = 0; i <= 2; i++) {
             if (checkGrid(i, j)) return;
         }
-        crosses = circles = 0;
+        squares = circles = 0;
     }
 
     for (let i = 2; i >= 0; i--) { // diagonal 1
         if (checkGrid(i, Math.abs(i - 2))) return;
     }
-    crosses = circles = 0;
+    squares = circles = 0;
     for (let i = 0; i <= 2; i++) { //diagonal 2
         if (checkGrid(i, i)) return;
     }
@@ -86,25 +92,21 @@ const checkGrid = (i = 0, j = 0) => {
             circleLine.push({ i, j });
             break;
         case 'x':
-            crosses++;
-            crossLine.push({ i, j });
+            squares++;
+            squareLine.push({ i, j });
             break;
     }
-    if (circles == 3 || crosses == 3) {
+    if (circles == 3 || squares == 3) {
         player.innerHTML = `Player ${actualPlayer} WINS!!!`;
         player.classList.add('win');
         desireButtons();
-        animateInLine(circles == 3);
+        gameEnds=true;
+        content.classList.add('hide-content');
         return true;
     }
-    crossLine = [];
+    squareLine = [];
     circleLine = [];
     return false;
-}
-const animateInLine = (circleLine = false) => {
-    if (circleLine) {
-        
-    }
 }
 const desireButtons = () => {
     gridBtns.forEach(btn=>{
